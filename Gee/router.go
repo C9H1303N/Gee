@@ -6,13 +6,19 @@ import (
 )
 
 type router struct {
+	roots map[string]*node
 	handlers map[string]HandlerFunc
 }
 
 func newRouter() *router {
 	return &router{
 		handlers: make(map[string]HandlerFunc),
+		roots: make(map[string]*node),
 	}
+}
+
+func parsePattern(pattern string) []string {
+	
 }
 
 func (r *router) addRoute(method string, pattern string, handler HandlerFunc)  {
