@@ -3,14 +3,14 @@ package Gee
 import "strings"
 
 type node struct {
-	pattern string  // 完整url
-	part string		// 当前路由
-	children []*node		// 子节点
-	isFuzzy bool	// 是否通配符或参数匹配
+	pattern  string  // 完整url
+	part     string  // 当前路由
+	children []*node // 子节点
+	isFuzzy  bool    // 是否通配符或参数匹配
 }
 
 func (n *node) matchChild(part string) *node {
-	for _, child := range n.children{
+	for _, child := range n.children {
 		if child.part == part || child.isFuzzy {
 			return child
 		}
@@ -19,8 +19,8 @@ func (n *node) matchChild(part string) *node {
 }
 
 func (n *node) matchChildren(part string) []*node {
-	nodes := make([]*node,0)
-	for _, child := range n.children{
+	nodes := make([]*node, 0)
+	for _, child := range n.children {
 		if child.part == part || child.isFuzzy {
 			nodes = append(nodes, child)
 		}
@@ -28,7 +28,7 @@ func (n *node) matchChildren(part string) []*node {
 	return nodes
 }
 
-func (n *node) insert(pattern string, parts []string, height int)  {
+func (n *node) insert(pattern string, parts []string, height int) {
 	if len(parts) == height {
 		n.pattern = pattern
 		return
