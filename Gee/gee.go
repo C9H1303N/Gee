@@ -2,6 +2,7 @@ package Gee
 
 import (
 	"net/http"
+	"strings"
 )
 
 type HandlerFunc func(*Context)
@@ -39,7 +40,16 @@ func (group *RouterGroup) POST(pattern string, handler HandlerFunc) {
 }
 
 func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	var middleware []HandlerFunc
+
+	for _, group := range engine.groups { //判断中间件应该应用在哪些分组上，可以进一步改进
+		if strings.HasPrefix(req.URL.Path, group.prefix) {
+			middleware = append(middleware, group.middlewares...)
+		}
+	}
+
 	c := newContext(w, req)
+	c.handlers = middleware
 	engine.router.handle(c)
 }
 
@@ -55,4 +65,8 @@ func (group *RouterGroup) Group(prefix string) *RouterGroup {
 	}
 	engine.groups = append(engine.groups, newGroup)
 	return newGroup
+}
+
+func (group *RouterGroup) Use(middlewares ...HandlerFunc) { // 为当前分组增加中间件
+	group.middlewares = append(group.middlewares, middlewares...)
 }

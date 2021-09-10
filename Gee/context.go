@@ -11,10 +11,12 @@ type H map[string]interface{}
 type Context struct {
 	Writer     http.ResponseWriter
 	Req        *http.Request
-	Path       string
-	Params     map[string]string
-	Method     string
-	StatusCode int
+	Path       string            // url
+	Params     map[string]string //param
+	Method     string            // get/post
+	StatusCode int               // http code
+	handlers   []HandlerFunc
+	index      int // current middleware index
 }
 
 func newContext(w http.ResponseWriter, req *http.Request) *Context {
@@ -23,6 +25,7 @@ func newContext(w http.ResponseWriter, req *http.Request) *Context {
 		Req:    req,
 		Path:   req.URL.Path,
 		Method: req.Method,
+		index:  -1,
 	}
 }
 
@@ -73,4 +76,17 @@ func (c *Context) HTML(code int, html string) error {
 
 func (c *Context) Param(key string) string {
 	return c.Params[key]
+}
+
+func (c *Context) Next() {
+	c.index++
+	s := len(c.handlers)
+	for ; c.index < s; c.index++ {
+		c.handlers[c.index](c)
+	}
+}
+
+func (c *Context) Fail(code int, err string) {
+	c.index = len(c.handlers)
+	c.JSON(code, H{"message": err})
 }
