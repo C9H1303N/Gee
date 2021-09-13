@@ -1,28 +1,21 @@
 package main
 
 import (
+	"net/http"
+
 	"gee/Gee"
-	"log"
-	"time"
 )
 
-func onlyForV2() Gee.HandlerFunc {
-	return func(c *Gee.Context) {
-		// Start timer
-		t := time.Now()
-		// if a server error occurred
-		//	c.Fail(500, "Internal Server Error")
-		c.Next()
-		// Calculate resolution time
-		log.Printf("[%d] %s in %v for group v2", c.StatusCode, c.Req.RequestURI, time.Since(t))
-	}
-}
-
 func main() {
-	r := Gee.New()
-	v := r.Group("/abc")
-	v.Static("/assets", "C:/Users/yaozijian/GolandProjects/gee/usr")
-	// 或相对路径 r.Static("/assets", "./static")
-	r.Run(":9999")
+	r := Gee.Default()
+	r.GET("/", func(c *Gee.Context) {
+		c.String(http.StatusOK, "Hello Geektutu\n")
+	})
+	// index out of range for testing Recovery()
+	r.GET("/panic", func(c *Gee.Context) {
+		names := []string{"geektutu"}
+		c.String(http.StatusOK, names[100])
+	})
 
+	r.Run(":9999")
 }

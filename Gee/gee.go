@@ -27,6 +27,12 @@ func New() *Engine {
 	return engine
 }
 
+func Default() *Engine {
+	engine := New()
+	engine.Use(Logger(), Recovery())
+	return engine
+}
+
 func (group *RouterGroup) addRoute(method string, pattern string, handler HandlerFunc) {
 	pattern = group.prefix + pattern
 	group.engine.router.addRoute(method, pattern, handler)
